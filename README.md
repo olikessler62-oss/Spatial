@@ -1,4 +1,6 @@
 # Spatial
+Discover patterns. Test ideas. Build knowledge.
+
 Project Spatial is a platform for exploring, comparing, and understanding spatial patterns in historical event data.
 
 Instead of attempting to predict future events, Project Spatial provides a scientific framework for 
