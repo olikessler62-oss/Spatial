@@ -1,6 +1,6 @@
 {
   "name": "@spatial/engine",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "description": "Core analysis engine for Project Spatial.",
@@ -12,7 +12,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "import:csv": "tsx src/cli/import-csv.ts"
+    "import:csv": "tsx src/cli/import-csv.ts",
+    "benchmark": "tsx src/benchmark/run-benchmarks.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
@@ -24,4 +25,5 @@
     "typescript": "^5.8.0",
     "vitest": "^3.2.0"
   }
+  
 }

@@ -1,0 +1,1 @@
+{"version":3,"file":"layout-error.js","sourceRoot":"","sources":["../../src/layout/layout-error.ts"],"names":[],"mappings":"AAAA,MAAM,OAAO,WAAY,SAAQ,KAAK;IACgB;IAApD,YAAmB,OAAe,EAAkB,IAAY;QAC9D,KAAK,CAAC,OAAO,CAAC,CAAC;QADmC,SAAI,GAAJ,IAAI,CAAQ;QAE9D,IAAI,CAAC,IAAI,GAAG,aAAa,CAAC;IAC5B,CAAC;CACF"}

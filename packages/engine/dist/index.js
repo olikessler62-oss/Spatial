@@ -7,4 +7,15 @@ export { DrawValidator, } from "./validation/draw-validator.js";
 export { RepositoryError } from "./repositories/repository-error.js";
 export { SupabaseDatasetRepository } from "./supabase/supabase-dataset-repository.js";
 export { createSupabaseDatasetRepository, } from "./supabase/create-supabase-dataset-repository.js";
+export { ShapeError } from "./shape/shape-error.js";
+export { CartesianShapeResolver } from "./shape/cartesian-shape-resolver.js";
+export { ShapePlacementGenerator } from "./shape/shape-placement-generator.js";
+export { BitMask } from "./indexing/bit-mask.js";
+export { LayoutPositionIndex } from "./indexing/layout-position-index.js";
+export { PlacementIndexer, } from "./indexing/placement-indexer.js";
+export { DrawIndexer, } from "./indexing/draw-indexer.js";
+export { HitEvaluator } from "./experiment/hit-evaluator.js";
+export { ExperimentRunner, } from "./experiment/experiment-runner.js";
+export { SyntheticDrawGenerator, } from "./benchmark/synthetic-draw-generator.js";
+export { ExperimentBenchmark, } from "./benchmark/experiment-benchmark.js";
 //# sourceMappingURL=index.js.map

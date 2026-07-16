@@ -44,3 +44,54 @@ export {
   type SupabaseRepositoryConfig,
 } from "./supabase/create-supabase-dataset-repository.js";
 export type { Database } from "./supabase/database.types.js";
+
+export type {
+  RelativePosition,
+  ShapeDefinition,
+  ResolvedShapePosition,
+  ShapePlacement,
+  ShapeResolver,
+} from "./domain/shape.js";
+
+export { ShapeError } from "./shape/shape-error.js";
+export { CartesianShapeResolver } from "./shape/cartesian-shape-resolver.js";
+export { ShapePlacementGenerator } from "./shape/shape-placement-generator.js";
+
+export { BitMask } from "./indexing/bit-mask.js";
+
+export { LayoutPositionIndex } from "./indexing/layout-position-index.js";
+
+export {
+  PlacementIndexer,
+  type IndexedPlacement,
+} from "./indexing/placement-indexer.js";
+
+export {
+  DrawIndexer,
+  type IndexedDraw,
+} from "./indexing/draw-indexer.js";
+
+export type {
+  ExperimentInput,
+  ExperimentExecutionResult,
+  PlacementDrawResult,
+  PlacementExperimentSummary,
+} from "./domain/experiment.js";
+
+export { HitEvaluator } from "./experiment/hit-evaluator.js";
+
+export {
+  ExperimentRunner,
+  type ExperimentRunnerDependencies,
+} from "./experiment/experiment-runner.js";
+
+export {
+  SyntheticDrawGenerator,
+  type SyntheticDrawGeneratorOptions,
+} from "./benchmark/synthetic-draw-generator.js";
+
+export {
+  ExperimentBenchmark,
+  type ExperimentBenchmarkInput,
+  type ExperimentBenchmarkResult,
+} from "./benchmark/experiment-benchmark.js";
