@@ -1,0 +1,11 @@
+{
+  "projectName": "Project Spatial",
+  "repositoryUrl": "https://github.com/olikessler62-oss/Spatial",
+  "defaultBranch": "main",
+  "paths": {
+    "architecture": "docs/architecture",
+    "domain": "docs/domain",
+    "adr": "docs/adr",
+    "roadmap": "docs/roadmap"
+  }
+}
