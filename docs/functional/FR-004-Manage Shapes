@@ -1,0 +1,404 @@
+# FR-004 — Manage Shapes
+
+**Document ID:** FR-004  
+**Status:** Draft  
+**Version:** 1.0  
+**Date:** 2026-07-16  
+**Owner:** Analysis Domain
+
+---
+
+## Purpose
+
+Users shall be able to create, configure, validate, version, inspect and manage spatial Shapes.
+
+A Shape defines a reusable spatial selection rule that can be placed on a Layout and used within an Experiment.
+
+Shapes describe spatial structure. They do not contain draw data, metrics or predictions.
+
+---
+
+## Actors
+
+- Explorer
+- Analyst
+- Researcher
+- Administrator
+
+---
+
+## Functional Requirements
+
+### FR-004.001 — Browse Shapes
+
+The system shall allow users to browse all Shapes they are authorized to access.
+
+Shapes may be filtered by:
+
+- Shape type
+- Owner
+- Visibility
+- Publication status
+- Position count
+- Compatibility
+- Tags
+
+---
+
+### FR-004.002 — View Shape
+
+The system shall display:
+
+- Shape name
+- Shape type
+- Definition type
+- Version
+- Owner
+- Visibility
+- Position count
+- Parameters
+- Status
+- Source or parent Shape, if applicable
+
+---
+
+### FR-004.003 — Create Shape
+
+Authorized users shall be able to create a Shape.
+
+Required information:
+
+- Name
+- Shape type
+- Definition type
+- Visibility
+
+Optional information:
+
+- Description
+- Tags
+- Anchor definition
+- Parameters
+- Default weights
+
+---
+
+### FR-004.004 — Define Shape Structure
+
+A Shape may be defined through one of the following methods:
+
+- Relative coordinates
+- Geometric parameters
+- Logical selection rules
+- Manual position selection
+- Composite definition
+
+The stored definition must be deterministic and reproducible.
+
+---
+
+### FR-004.005 — Built-in Shape Types
+
+The MVP shall support:
+
+- Single Cell
+- Line
+- Rectangle
+- Square
+- Triangle
+- Circle
+- Ring
+- Cross
+- L-Shape
+- X-Shape
+- Custom Selection
+
+---
+
+### FR-004.006 — Configure Parameters
+
+Users shall be able to configure Shape-specific parameters.
+
+Examples:
+
+- Width
+- Height
+- Radius
+- Thickness
+- Orientation
+- Position count
+- Relative weights
+
+Parameter definitions must be validated against the selected Shape type.
+
+---
+
+### FR-004.007 — Validate Shape
+
+Before publication, the system shall validate that:
+
+- the definition is complete,
+- the Shape contains at least one selectable position,
+- all required parameters are valid,
+- no duplicate relative positions exist,
+- weights are valid,
+- the definition can be resolved deterministically,
+- the Shape is compatible with at least one supported Layout.
+
+---
+
+### FR-004.008 — Preview Shape
+
+The system shall provide a visual preview of the Shape.
+
+The preview shall show:
+
+- selected relative positions,
+- anchor point,
+- dimensions,
+- orientation,
+- weights, if present,
+- invalid or unresolved positions.
+
+The preview may use a neutral reference grid when no Layout is selected.
+
+---
+
+### FR-004.009 — Test Shape on Layout
+
+Users shall be able to place a Shape temporarily on a compatible Layout for validation and preview.
+
+This action shall not create an Experiment.
+
+The system shall indicate:
+
+- valid placements,
+- invalid placements,
+- boundary conflicts,
+- selected Layout positions,
+- mapped values.
+
+---
+
+### FR-004.010 — Version Shape
+
+A change affecting Shape structure or analytical behavior shall create a new `ShapeVersion`.
+
+Examples requiring a new version:
+
+- changed coordinates,
+- changed dimensions,
+- changed geometric parameters,
+- changed weights,
+- changed anchor behavior,
+- changed logical selection rules.
+
+Published Shape Versions are immutable.
+
+---
+
+### FR-004.011 — Edit Metadata
+
+Users may edit non-analytical metadata without creating a new Shape Version.
+
+Examples:
+
+- Display name
+- Description
+- Tags
+
+Changes affecting analytical behavior require a new version.
+
+---
+
+### FR-004.012 — Duplicate Shape
+
+Users shall be able to create an editable copy of an existing Shape or Shape Version.
+
+The copy shall reference:
+
+- source Shape,
+- source version,
+- copying user,
+- creation timestamp.
+
+---
+
+### FR-004.013 — Fork Published Shape
+
+Authorized users shall be able to fork a published Shape.
+
+The fork shall preserve its relationship to the original publication while remaining independently versioned.
+
+---
+
+### FR-004.014 — Publish Shape
+
+Authorized users shall be able to publish a validated Shape Version.
+
+Published Shape Versions may be:
+
+- used in Experiments,
+- shared with other users,
+- forked,
+- referenced by Studies,
+- reviewed by the Community.
+
+---
+
+### FR-004.015 — Archive Shape
+
+Users shall be able to archive a Shape.
+
+Archived Shapes remain available to existing:
+
+- Experiment Versions,
+- Experiment Runs,
+- Results,
+- Publications.
+
+---
+
+### FR-004.016 — Visibility
+
+Shapes shall support:
+
+- private
+- workspace
+- community
+- public
+- system
+
+---
+
+### FR-004.017 — Ownership
+
+Every user-created Shape shall record its owner through `created_by`.
+
+---
+
+### FR-004.018 — Shape Compatibility
+
+The system shall determine whether a Shape can be resolved on a selected Layout.
+
+Compatibility may depend on:
+
+- coordinate system,
+- available dimensions,
+- placement boundaries,
+- anchor support,
+- Shape definition type.
+
+Compatibility does not imply that every placement is valid.
+
+---
+
+### FR-004.019 — Shape Transformations
+
+The system shall support runtime transformations where compatible:
+
+- Rotation
+- Reflection
+- Translation
+
+Transformations used in an Experiment must be stored as part of the Experiment or Placement configuration.
+
+A transformation shall create a new Shape Version only when it changes the reusable Shape definition itself.
+
+---
+
+### FR-004.020 — Composite Shapes
+
+The system should support Shapes composed of multiple Shape definitions.
+
+Composite operations may include:
+
+- Union
+- Intersection
+- Difference
+
+Composite Shapes are outside the minimum MVP execution scope but the model shall remain extensible for them.
+
+---
+
+### FR-004.021 — Weighted Shapes
+
+A Shape may assign weights to its selected relative positions.
+
+Weights may later be used by compatible Metrics or Hit Rules.
+
+Weights must not alter the original Draw data.
+
+---
+
+### FR-004.022 — Random Shapes
+
+Randomly generated Shapes may be supported in a later version.
+
+A random Shape definition must preserve:
+
+- generation algorithm,
+- parameter set,
+- random seed,
+- generated Shape snapshot.
+
+Random generation without a stored seed is prohibited for reproducible Experiments.
+
+---
+
+## Constraints
+
+- A Shape contains at least one relative position or one resolvable selection rule.
+- A reusable Shape should remain independent of a specific Lottery.
+- A Shape is not permanently placed on a Layout.
+- Placement belongs to an Experiment or Placement configuration.
+- Published Shape Versions are immutable.
+- Existing Experiments retain references to their original Shape Version.
+- A Shape does not contain Draws, Metrics, Results or conclusions.
+- A Shape must never imply a prediction.
+
+---
+
+## Acceptance Criteria
+
+- A user can create a rectangular Shape.
+- A user can define its width and height.
+- The Shape can be previewed on a neutral grid.
+- Invalid or duplicate positions are rejected.
+- A Shape can be tested against a Layout.
+- Invalid boundary placements are reported.
+- A valid Shape Version can be published.
+- Editing a published Shape definition creates a new version.
+- Existing Experiments continue referencing the original version.
+- A published Shape can be duplicated or forked.
+- Unauthorized users cannot modify private Shapes.
+- Runtime rotation can be stored without mutating the Shape Version.
+
+---
+
+## Related Specifications
+
+- ADR-001 — Domain-Driven Design
+- ADR-002 — Progressive Complexity
+- ADR-005 — Immutable Domain Objects
+- DOM-004 — Layout
+- DOM-005 — Shape
+- DOM-006 — Experiment
+- SEC-001 — Authorization Model
+- DB-001 — Core Database
+- FR-003 — Manage Layouts
+
+---
+
+## Open Questions
+
+1. Should Shape definitions always use relative coordinates internally?
+2. Do built-in parameterized Shapes require persisted `shape_positions`?
+3. Should free-form Shapes support non-contiguous selections?
+4. Which transformations are valid for polar and hexagonal coordinate systems?
+5. Should Shape compatibility be calculated dynamically or cached?
+6. How are geometrically identical Shapes detected?
+7. Should equivalent rotations or reflections be treated as duplicates?
+8. Which Shape types belong to the free plan?
+9. Are Composite Shapes part of MVP or v1.1?
+10. Should Community Shapes require moderation before publication?
