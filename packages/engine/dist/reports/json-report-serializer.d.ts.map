@@ -1,0 +1,1 @@
+{"version":3,"file":"json-report-serializer.d.ts","sourceRoot":"","sources":["../../src/reports/json-report-serializer.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,mBAAmB,CAAC;AAE1D,MAAM,WAAW,2BAA2B;IAC1C,QAAQ,CAAC,MAAM,CAAC,EAAE,OAAO,CAAC;CAC3B;AAED,qBAAa,oBAAoB;IACxB,SAAS,CACd,MAAM,EAAE,gBAAgB,EACxB,OAAO,GAAE,2BAAgC,GACxC,MAAM;CAOV"}

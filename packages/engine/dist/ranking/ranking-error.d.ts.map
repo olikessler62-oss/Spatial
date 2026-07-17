@@ -1,0 +1,1 @@
+{"version":3,"file":"ranking-error.d.ts","sourceRoot":"","sources":["../../src/ranking/ranking-error.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,gBAAgB,GACxB,gBAAgB,GAChB,kBAAkB,GAClB,gBAAgB,GAChB,mBAAmB,GACnB,mBAAmB,GACnB,eAAe,GACf,sBAAsB,GACtB,sBAAsB,CAAC;AAE3B,qBAAa,YAAa,SAAQ,KAAK;aAGnB,IAAI,EAAE,gBAAgB;gBADtC,OAAO,EAAE,MAAM,EACC,IAAI,EAAE,gBAAgB;CAKzC"}

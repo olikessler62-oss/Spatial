@@ -18,4 +18,12 @@ export { HitEvaluator } from "./experiment/hit-evaluator.js";
 export { ExperimentRunner, } from "./experiment/experiment-runner.js";
 export { SyntheticDrawGenerator, } from "./benchmark/synthetic-draw-generator.js";
 export { ExperimentBenchmark, } from "./benchmark/experiment-benchmark.js";
+export { ExperimentAnalysisError, } from "./analysis/experiment-analysis-error.js";
+export { ExperimentAnalysisService, } from "./analysis/experiment-analysis-service.js";
+export { createMetricRankingAdapter, } from "./analysis/metric-ranking-adapter.js";
+export { AverageHitMetric, } from "./analysis/metrics/average-hit-metric.js";
+export { MaxHitMetric, } from "./analysis/metrics/max-hit-metric.js";
+export { MetricEngine, } from "./analysis/metrics/metric-engine.js";
+export { RankingEngine, } from "./ranking/ranking-engine.js";
+export { RankingError, } from "./ranking/ranking-error.js";
 //# sourceMappingURL=index.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"json-report-serializer.js","sourceRoot":"","sources":["../../src/reports/json-report-serializer.ts"],"names":[],"mappings":"AAMA,MAAM,OAAO,oBAAoB;IACxB,SAAS,CACd,MAAwB,EACxB,UAAuC,EAAE;QAEzC,OAAO,IAAI,CAAC,SAAS,CACnB,MAAM,EACN,IAAI,EACJ,OAAO,CAAC,MAAM,KAAK,IAAI,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,SAAS,CACxC,CAAC;IACJ,CAAC;CACF"}

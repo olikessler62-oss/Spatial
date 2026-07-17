@@ -95,3 +95,73 @@ export {
   type ExperimentBenchmarkInput,
   type ExperimentBenchmarkResult,
 } from "./benchmark/experiment-benchmark.js";
+
+export {
+  ExperimentAnalysisError,
+  type ExperimentAnalysisErrorCode,
+  type ExperimentAnalysisErrorDetails,
+} from "./analysis/experiment-analysis-error.js";
+
+export {
+  ExperimentAnalysisService,
+  type ExperimentAnalysisServiceDependencies,
+} from "./analysis/experiment-analysis-service.js";
+
+export type {
+  ExperimentAnalysisCandidate,
+  ExperimentAnalysisConfiguration,
+  ExperimentAnalysisMetadata,
+  ExperimentAnalysisRequest,
+  RuntimeNow,
+} from "./analysis/experiment-analysis-types.js";
+
+export {
+  createMetricRankingAdapter,
+  type MetricRankingAdapter,
+} from "./analysis/metric-ranking-adapter.js";
+
+export {
+  AverageHitMetric,
+  type AverageHitMetricResult,
+} from "./analysis/metrics/average-hit-metric.js";
+
+export {
+  MaxHitMetric,
+  type MaxHitMetricResult,
+} from "./analysis/metrics/max-hit-metric.js";
+
+export {
+  MetricEngine,
+} from "./analysis/metrics/metric-engine.js";
+
+export type {
+  Metric,
+  MetricResult,
+} from "./analysis/metrics/metric.js";
+
+export {
+  RankingEngine,
+} from "./ranking/ranking-engine.js";
+
+export {
+  RankingError,
+} from "./ranking/ranking-error.js";
+
+export type {
+  RankableResult,
+  RankedResult,
+  RankingConfiguration,
+  RankingCriterion,
+  RankingCriterionScore,
+  RankingDirection,
+  RankingResult,
+} from "./ranking/ranking-types.js";
+
+export type {
+  ExperimentReport,
+  ExperimentReportConfiguration,
+  ExperimentReportInput,
+  ExperimentReportMetadata,
+  ExperimentReportRanking,
+  ExperimentReportStatistics,
+} from "./reports/report-types.js";
