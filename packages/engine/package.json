@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "import:csv": "tsx src/cli/import-csv.ts",
-    "benchmark": "tsx src/benchmark/run-benchmarks.ts"
+    "benchmark": "tsx src/benchmark/run-benchmarks.ts",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
@@ -21,9 +22,9 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^3.2.7",
     "tsx": "^4.20.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.0"
   }
-  
 }
