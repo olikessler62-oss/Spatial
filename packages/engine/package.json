@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "import:csv": "tsx src/cli/import-csv.ts",
+    "analyze:experiment": "tsx src/cli/analyze-experiment.ts",
     "benchmark": "tsx src/benchmark/run-benchmarks.ts",
     "coverage": "vitest run --coverage"
   },

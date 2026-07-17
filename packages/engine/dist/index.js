@@ -26,4 +26,5 @@ export { MaxHitMetric, } from "./analysis/metrics/max-hit-metric.js";
 export { MetricEngine, } from "./analysis/metrics/metric-engine.js";
 export { RankingEngine, } from "./ranking/ranking-engine.js";
 export { RankingError, } from "./ranking/ranking-error.js";
+export { ExperimentOrchestrator, } from "./orchestration/experiment-orchestrator.js";
 //# sourceMappingURL=index.js.map

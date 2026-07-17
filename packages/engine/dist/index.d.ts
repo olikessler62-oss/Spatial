@@ -37,4 +37,6 @@ export { RankingEngine, } from "./ranking/ranking-engine.js";
 export { RankingError, } from "./ranking/ranking-error.js";
 export type { RankableResult, RankedResult, RankingConfiguration, RankingCriterion, RankingCriterionScore, RankingDirection, RankingResult, } from "./ranking/ranking-types.js";
 export type { ExperimentReport, ExperimentReportConfiguration, ExperimentReportInput, ExperimentReportMetadata, ExperimentReportRanking, ExperimentReportStatistics, } from "./reports/report-types.js";
+export { ExperimentOrchestrator, type ExperimentOrchestratorDependencies, } from "./orchestration/experiment-orchestrator.js";
+export type { ExperimentOrchestratorCandidate, ExperimentOrchestratorRequest, } from "./orchestration/experiment-orchestrator-types.js";
 //# sourceMappingURL=index.d.ts.map

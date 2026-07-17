@@ -165,3 +165,13 @@ export type {
   ExperimentReportRanking,
   ExperimentReportStatistics,
 } from "./reports/report-types.js";
+
+export {
+  ExperimentOrchestrator,
+  type ExperimentOrchestratorDependencies,
+} from "./orchestration/experiment-orchestrator.js";
+
+export type {
+  ExperimentOrchestratorCandidate,
+  ExperimentOrchestratorRequest,
+} from "./orchestration/experiment-orchestrator-types.js";
