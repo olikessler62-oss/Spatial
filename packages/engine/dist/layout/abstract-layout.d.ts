@@ -1,6 +1,7 @@
 import type { Layout, LayoutDefinition, ResolvedLayoutValue } from "../domain/layout.js";
 export declare abstract class AbstractLayout implements Layout {
     readonly definition: LayoutDefinition;
+    private readonly valueToIndex;
     constructor(definition: LayoutDefinition);
     resolve(value: number): ResolvedLayoutValue;
     resolveAll(): readonly ResolvedLayoutValue[];

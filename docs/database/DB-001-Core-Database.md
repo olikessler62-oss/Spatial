@@ -14,7 +14,8 @@ This document defines the initial relational database model for the Project Spat
 
 The database shall persist:
 
-- lotteries and their rule versions,
+- lotteries and their rule versions (with `valid_from` / `valid_to`),
+- per-draw `rule_set_id` resolved from the draw date at import time,
 - imported datasets and draws,
 - layouts and spatial positions,
 - shapes and shape definitions,

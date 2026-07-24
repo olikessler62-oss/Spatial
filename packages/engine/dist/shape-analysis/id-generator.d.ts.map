@@ -1,0 +1,1 @@
+{"version":3,"file":"id-generator.d.ts","sourceRoot":"","sources":["../../src/shape-analysis/id-generator.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,8BAA8B,CAAC;AAEhE;;GAEG;AACH,qBAAa,qBAAsB,YAAW,WAAW;IAGpC,OAAO,CAAC,QAAQ,CAAC,QAAQ;IAF5C,OAAO,CAAC,OAAO,CAAK;gBAEgB,QAAQ,SAAI;IAEzC,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,MAAM;CAKtC"}

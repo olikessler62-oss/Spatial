@@ -1,0 +1,112 @@
+{
+  "metadata": {
+    "experimentId": "experiment-cli-example",
+    "createdAt": "2026-07-17T12:30:00.000Z",
+    "engineVersion": "0.5.0"
+  },
+  "candidates": [
+    {
+      "resultId": "candidate-a",
+      "executionResult": {
+        "experimentId": "experiment-cli-example",
+        "analyzedDraws": 3,
+        "analyzedPlacements": 1,
+        "comparisons": 3,
+        "results": [
+          {
+            "anchorValue": 1,
+            "drawDate": "2026-01-01",
+            "hitCount": 1,
+            "placementSize": 5,
+            "coverage": 0.2,
+            "isHit": true
+          },
+          {
+            "anchorValue": 1,
+            "drawDate": "2026-01-02",
+            "hitCount": 2,
+            "placementSize": 5,
+            "coverage": 0.4,
+            "isHit": true
+          },
+          {
+            "anchorValue": 1,
+            "drawDate": "2026-01-03",
+            "hitCount": 0,
+            "placementSize": 5,
+            "coverage": 0,
+            "isHit": false
+          }
+        ],
+        "placementSummaries": []
+      }
+    },
+    {
+      "resultId": "candidate-b",
+      "executionResult": {
+        "experimentId": "experiment-cli-example",
+        "analyzedDraws": 3,
+        "analyzedPlacements": 1,
+        "comparisons": 3,
+        "results": [
+          {
+            "anchorValue": 2,
+            "drawDate": "2026-01-01",
+            "hitCount": 2,
+            "placementSize": 5,
+            "coverage": 0.4,
+            "isHit": true
+          },
+          {
+            "anchorValue": 2,
+            "drawDate": "2026-01-02",
+            "hitCount": 4,
+            "placementSize": 5,
+            "coverage": 0.8,
+            "isHit": true
+          },
+          {
+            "anchorValue": 2,
+            "drawDate": "2026-01-03",
+            "hitCount": 3,
+            "placementSize": 5,
+            "coverage": 0.6,
+            "isHit": true
+          }
+        ],
+        "placementSummaries": []
+      }
+    }
+  ],
+  "configuration": {
+    "layout": {
+      "type": "cli-example-layout"
+    },
+    "placementGenerator": {
+      "type": "cli-example-generator"
+    },
+    "metrics": [
+      {
+        "id": "average-hits"
+      },
+      {
+        "id": "maximum-hits"
+      }
+    ],
+    "ranking": {
+      "criteria": [
+        {
+          "metricId": "average-hits",
+          "weight": 0.7,
+          "direction": "descending"
+        },
+        {
+          "metricId": "maximum-hits",
+          "weight": 0.3,
+          "direction": "descending"
+        }
+      ]
+    }
+  },
+  "generatedAt": "2026-07-17T12:35:00.000Z"
+}

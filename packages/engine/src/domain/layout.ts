@@ -30,6 +30,11 @@ export interface LayoutDefinition {
   readonly type: LayoutType;
   readonly minimumValue: number;
   readonly maximumValue: number;
+  /**
+   * Optional permutation: layout index → lottery value.
+   * When omitted, values are mapped sequentially (value - minimumValue).
+   */
+  readonly valueMapping?: readonly number[];
 }
 
 export interface Layout {

@@ -14,6 +14,7 @@ export class SupabaseDatasetRepository {
             bonus_numbers: [...draw.bonusNumbers],
             external_id: draw.externalId ?? null,
             source_row: draw.sourceRow,
+            ...(draw.ruleSetId ? { rule_set_id: draw.ruleSetId } : {}),
         }));
         const { data, error } = await this.client.rpc("import_dataset_version", {
             p_dataset_id: command.datasetId,

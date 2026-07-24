@@ -1,4 +1,3 @@
-import { performance } from "node:perf_hooks";
 import type { ExperimentExecutionResult } from "../domain/experiment.js";
 import { ExperimentRunner } from "../experiment/experiment-runner.js";
 import type { IndexedDraw } from "../indexing/draw-indexer.js";

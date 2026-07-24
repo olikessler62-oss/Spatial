@@ -1,10 +1,10 @@
-import type { ParsedDraw } from "../domain/parsed-draw.js";
+import type { AcceptedDraw } from "../import/import-report.js";
 
 export interface PersistDatasetVersionCommand {
   readonly datasetId: string;
   readonly ruleSetId: string;
   readonly contentHash: string;
-  readonly draws: readonly ParsedDraw[];
+  readonly draws: readonly AcceptedDraw[];
 }
 
 export interface PersistedDatasetVersion {

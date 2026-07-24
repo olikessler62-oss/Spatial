@@ -158,11 +158,13 @@ Lottery
 
 
 
-\- A Lottery has exactly one rule set.
+\- A Lottery may have one or more versioned rule sets (`LotteryRuleSet`).
 
-\- Every Draw must comply with the Lottery rules.
+\- Every Draw must comply with the rule set that is valid on its draw date.
 
-\- Rule changes create a new Lottery Version.
+\- Rule changes create a new `LotteryRuleSet` with a non-overlapping validity period (`valid_from` / `valid_to`).
+
+\- Exactly one rule set must cover any given draw date for a Lottery.
 
 
 
@@ -206,7 +208,9 @@ EuroJackpot
 
 \- Main Numbers: 5
 
-\- Euro Numbers: 2 from 12
+\- Rule set A (until 2022-03-24): Euro Numbers 2 from 1–10
+
+\- Rule set B (from 2022-03-25): Euro Numbers 2 from 1–12
 
 
 
@@ -223,8 +227,6 @@ EuroJackpot
 \- Multiple bonus number types
 
 \- Regional variations
-
-\- Historical rule versions
 
 
 

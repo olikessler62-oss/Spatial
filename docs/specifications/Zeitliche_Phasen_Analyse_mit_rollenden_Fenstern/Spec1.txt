@@ -1,0 +1,993 @@
+# Spec: Zeitliche Phasenanalyse mit rollierenden Fenstern
+
+## Aufgabe
+
+Erweitere die bestehende Analyse von Project Spatial um eine zeitbezogene Phasenanalyse für einzelne Zahlen.
+
+Die Anwendung verfügt bereits beziehungsweise zukünftig über Kennzahlen wie:
+
+* gesamte Trefferzahl einer Zahl
+* aktuelle Nichttreffer-Serie
+* historische Nichttreffer-Serien
+* Häufigkeitsverteilung der Serienlängen
+* Median
+* Mittelwert
+* getrimmter Mittelwert
+* Perzentile
+
+Die neue Funktion soll nicht nur die gesamte Historie betrachten, sondern zusätzlich zeigen, wie sich das Verhalten einer Zahl innerhalb zeitlich begrenzter Abschnitte verändert.
+
+Verwende dafür rollierende Fenster.
+
+Die Funktion ist eine beschreibende historische Analyse. Sie darf keine Vorhersage und keine Aussage über eine erhöhte zukünftige Trefferwahrscheinlichkeit erzeugen.
+
+---
+
+# 1. Fachliches Ziel
+
+Für jede Zahl soll ermittelt werden:
+
+1. Wie oft sie innerhalb verschiedener zeitlicher Fenster gezogen wurde.
+2. Welche Nichttreffer-Serien innerhalb dieser Fenster vorkamen.
+3. Wie sich die typischen Abstände zwischen Treffern zeitlich verändert haben.
+4. Ob sich Zeiträume mit überwiegend kurzen oder langen Trefferabständen erkennen lassen.
+5. Wie sich das aktuellste Fenster von der Gesamthistorie und früheren Fenstern unterscheidet.
+6. Ob sich die Kennzahlen momentan stabil verhalten oder deutlich verändern.
+
+Jede Zahl wird separat analysiert.
+
+Die Ergebnisse verschiedener Zahlen dürfen nicht miteinander vermischt werden.
+
+---
+
+# 2. Rollierende Fenster
+
+Ein rollierendes Fenster besteht aus einer festgelegten Anzahl chronologisch aufeinanderfolgender Ziehungen.
+
+Beispiel bei einer Fenstergröße von 50:
+
+```text
+Fenster 1: Ziehung 1 bis 50
+Fenster 2: Ziehung 2 bis 51
+Fenster 3: Ziehung 3 bis 52
+...
+Letztes Fenster: letzte 50 Ziehungen
+```
+
+Die Fenster werden jeweils um genau eine Ziehung weitergeschoben.
+
+Die Fenstergrößen müssen konfigurierbar sein.
+
+Standardmäßig sollen unterstützt werden:
+
+```text
+25 Ziehungen
+50 Ziehungen
+100 Ziehungen
+```
+
+Die Architektur darf nicht fest auf diese drei Größen begrenzt werden.
+
+Erwartete Konfiguration:
+
+```ts
+interface RollingWindowConfiguration {
+  readonly windowSizes: readonly number[];
+  readonly stepSize: number;
+}
+```
+
+Standard:
+
+```ts
+const defaultConfiguration: RollingWindowConfiguration = {
+  windowSizes: [25, 50, 100],
+  stepSize: 1,
+};
+```
+
+---
+
+# 3. Chronologische Datenbasis
+
+Vor jeder Berechnung müssen die Ziehungen chronologisch von der ältesten zur neuesten Ziehung sortiert werden.
+
+Die Sortierung darf nicht von der aktuellen Darstellungsreihenfolge der Benutzeroberfläche abhängen.
+
+Jede Ziehung benötigt eine stabile chronologische Zuordnung, beispielsweise über:
+
+```ts
+drawDate
+drawSequence
+drawNumber
+```
+
+Falls mehrere Felder existieren, nutze die bereits im Projekt definierte kanonische Sortierlogik.
+
+Zahlenpositionen innerhalb einer Ziehung spielen keine Rolle.
+
+Eine Zahl wird pro Ziehung ausschließlich als getroffen oder nicht getroffen bewertet.
+
+---
+
+# 4. Kennzahlen pro Fenster und Zahl
+
+Berechne für jede Zahl und für jedes Fenster mindestens folgende Werte:
+
+## Grunddaten
+
+* Fenstergröße
+* Index der ersten enthaltenen Ziehung
+* Index der letzten enthaltenen Ziehung
+* Datum der ersten Ziehung, falls vorhanden
+* Datum der letzten Ziehung, falls vorhanden
+* Anzahl enthaltener Ziehungen
+* Anzahl Treffer der Zahl
+* Anzahl Nichttreffer der Zahl
+* Trefferquote innerhalb des Fensters
+
+```ts
+hitRate = hitCount / drawCount;
+```
+
+## Nichttreffer-Serien
+
+* alle innerhalb des Fensters beobachteten Nichttreffer-Serien
+* Anzahl abgeschlossener Nichttreffer-Serien
+* minimale Serienlänge
+* maximale Serienlänge
+* arithmetischer Mittelwert
+* Median
+* Modus
+* 25. Perzentil
+* 75. Perzentil
+* 90. Perzentil
+* 95. Perzentil
+* 10-Prozent-getrimmter Mittelwert
+* aktuelle beziehungsweise am Fensterende offene Nichttreffer-Serie
+
+## Trefferabstände
+
+Optional beziehungsweise bevorzugt soll zusätzlich der Abstand zwischen zwei Treffern gespeichert werden.
+
+Definiere eindeutig, ob der Trefferabstand:
+
+```text
+Anzahl der Ziehungen zwischen zwei Treffern
+```
+
+oder:
+
+```text
+Differenz der Ziehungsindizes
+```
+
+bedeutet.
+
+Bevorzugte Definition:
+
+```text
+Anzahl der Nichttreffer-Ziehungen zwischen zwei Treffern
+```
+
+Beispiel:
+
+```text
+Treffer, Nichttreffer, Nichttreffer, Treffer
+```
+
+Trefferabstand:
+
+```text
+2
+```
+
+---
+
+# 5. Behandlung von Fenstergrenzen
+
+Fenstergrenzen müssen fachlich eindeutig behandelt werden.
+
+Eine Nichttreffer-Serie kann bereits vor Beginn eines Fensters begonnen haben oder nach dem Fensterende weiterlaufen.
+
+Deshalb müssen zwei verschiedene Sichtweisen vorgesehen werden.
+
+## Sichtweise A: fensterinterne Beobachtung
+
+Es werden nur die Ziehungen innerhalb des Fensters betrachtet.
+
+Eine Serie am Anfang oder Ende des Fensters wird entsprechend abgeschnitten.
+
+Beispiel:
+
+```text
+Tatsächliche Serie: 8 Nichttreffer
+Fenster enthält nur die letzten 5 davon
+Fensterinterne Serienlänge: 5
+```
+
+Diese Sichtweise beschreibt ausschließlich das sichtbare Verhalten innerhalb des Fensters.
+
+## Sichtweise B: historisch fortgeführte Serie
+
+Die Analyse kennt den vorherigen Verlauf und kann feststellen, wie lang die Serie tatsächlich bereits war beziehungsweise nach dem Fenster weiterging.
+
+Diese Sichtweise soll Metadaten liefern, aber nicht unbemerkt mit der fensterinternen Statistik vermischt werden.
+
+Erwartete Kennzeichnung:
+
+```ts
+interface WindowBoundaryStreak {
+  readonly observedLengthInsideWindow: number;
+  readonly fullHistoricalLength?: number;
+  readonly startedBeforeWindow: boolean;
+  readonly continuesAfterWindow: boolean;
+}
+```
+
+Für die erste Implementierung soll die zentrale Fensterstatistik auf der fensterinternen Beobachtung basieren.
+
+Serien, die an einer Fenstergrenze abgeschnitten sind, müssen jedoch als `censored` beziehungsweise unvollständig gekennzeichnet werden.
+
+Sie dürfen optional aus Median, Mittelwert und Perzentilen ausgeschlossen werden.
+
+Empfohlene Standardeinstellung:
+
+```ts
+includeBoundaryCensoredStreaksInStatistics = false;
+```
+
+Damit werden nur vollständig innerhalb des Fensters beobachtete Nichttreffer-Serien für die zentrale Serienstatistik verwendet.
+
+Trefferzahl und Trefferquote werden davon nicht beeinflusst.
+
+---
+
+# 6. Erwartete Datenstrukturen
+
+```ts
+interface RollingNumberWindowAnalysis {
+  readonly number: number;
+  readonly windowSize: number;
+  readonly windowStartIndex: number;
+  readonly windowEndIndex: number;
+  readonly windowStartDate?: string;
+  readonly windowEndDate?: string;
+  readonly drawCount: number;
+
+  readonly hitCount: number;
+  readonly missCount: number;
+  readonly hitRate: number;
+
+  readonly completedMissStreaks: readonly number[];
+  readonly boundaryStreaks: readonly WindowBoundaryStreak[];
+
+  readonly missStreakStatistics: WindowMissStreakStatistics;
+  readonly trailingMissStreak: number;
+}
+```
+
+```ts
+interface WindowMissStreakStatistics {
+  readonly sampleSize: number;
+  readonly minimum: number | null;
+  readonly maximum: number | null;
+  readonly arithmeticMean: number | null;
+  readonly median: number | null;
+  readonly mode: readonly number[];
+  readonly percentile25: number | null;
+  readonly percentile75: number | null;
+  readonly percentile90: number | null;
+  readonly percentile95: number | null;
+  readonly trimmedMean10Percent: number | null;
+}
+```
+
+Gesamtergebnis:
+
+```ts
+interface NumberRollingPhaseAnalysis {
+  readonly number: number;
+  readonly globalStatistics: GlobalNumberStatistics;
+  readonly windowsBySize: Readonly<Record<number, readonly RollingNumberWindowAnalysis[]>>;
+  readonly currentWindows: Readonly<Record<number, RollingNumberWindowAnalysis | null>>;
+  readonly currentPhaseAssessment: CurrentNumberPhaseAssessment;
+}
+```
+
+---
+
+# 7. Globale Vergleichswerte
+
+Für jede Zahl muss zusätzlich eine globale Statistik über den gesamten Datensatz vorliegen.
+
+Mindestens:
+
+* gesamte Anzahl Ziehungen
+* gesamte Trefferzahl
+* globale Trefferquote
+* aktuelle Nichttreffer-Serie
+* alle abgeschlossenen Nichttreffer-Serien
+* globaler Median
+* globaler getrimmter Mittelwert
+* globale Perzentile
+* globale maximale Nichttreffer-Serie
+
+Diese Werte dienen als Referenz für die rollierenden Fenster.
+
+Die globale Berechnung darf nicht aus dem Durchschnitt der Fenster berechnet werden.
+
+Sie muss direkt aus allen chronologisch sortierten Ziehungen ermittelt werden.
+
+---
+
+# 8. Vergleich eines Fensters mit der Gesamthistorie
+
+Für jedes Fenster sollen Abweichungen von der globalen Historie derselben Zahl berechnet werden.
+
+Mindestens:
+
+```ts
+hitRateDifference =
+  window.hitRate - global.hitRate;
+```
+
+```ts
+medianMissStreakDifference =
+  window.medianMissStreak - global.medianMissStreak;
+```
+
+```ts
+trimmedMeanDifference =
+  window.trimmedMeanMissStreak - global.trimmedMeanMissStreak;
+```
+
+Optional:
+
+```ts
+hitRateRatio =
+  window.hitRate / global.hitRate;
+```
+
+```ts
+medianMissStreakRatio =
+  window.medianMissStreak / global.medianMissStreak;
+```
+
+Division durch 0 muss verhindert werden.
+
+Erwartete Struktur:
+
+```ts
+interface WindowGlobalComparison {
+  readonly hitRateDifference: number;
+  readonly hitRateRatio: number | null;
+  readonly medianMissStreakDifference: number | null;
+  readonly medianMissStreakRatio: number | null;
+  readonly trimmedMeanDifference: number | null;
+  readonly trimmedMeanRatio: number | null;
+}
+```
+
+---
+
+# 9. Vergleich mit vorherigen Fenstern
+
+Eine Phase soll nicht nur anhand eines einzelnen absoluten Wertes bestimmt werden.
+
+Berücksichtige zusätzlich die Entwicklung gegenüber vorherigen Fenstern derselben Größe.
+
+Berechne beispielsweise:
+
+* Veränderung der Trefferquote
+* Veränderung des Medians
+* Veränderung des getrimmten Mittelwerts
+* Veränderung der maximalen Nichttreffer-Serie
+* Steigung über mehrere aufeinanderfolgende Fenster
+
+Für einen ersten stabilen Ansatz kann eine einfache lineare Regression über die letzten `n` Fenster verwendet werden.
+
+Standard:
+
+```text
+letzte 5 Fenster
+```
+
+Mögliche Trendwerte:
+
+```ts
+interface WindowMetricTrend {
+  readonly direction: "decreasing" | "stable" | "increasing";
+  readonly slope: number;
+  readonly comparedWindowCount: number;
+}
+```
+
+Die Schwelle für `stable` muss konfigurierbar sein.
+
+Beispielsweise:
+
+```ts
+Math.abs(slope) < threshold
+```
+
+Verwende keine willkürlichen festen Schwellen tief in der Berechnungslogik.
+
+---
+
+# 10. Deskriptive Phasenklassifikation
+
+Die Phasenklassifikation soll verständlich sein, aber ausdrücklich keine Vorhersage darstellen.
+
+Mögliche Klassen:
+
+```ts
+type NumberPhaseType =
+  | "short-interval"
+  | "normal"
+  | "long-interval"
+  | "transition"
+  | "insufficient-data";
+```
+
+## Kurzintervallphase
+
+Mögliche Kriterien:
+
+* Fenster-Trefferquote liegt sichtbar über der globalen Trefferquote.
+* Median und getrimmter Mittelwert der Nichttreffer-Serien liegen unter den globalen Werten.
+* Die Entwicklung ist über mehrere Fenster stabil oder sinkend.
+
+## Normalphase
+
+Mögliche Kriterien:
+
+* Fensterwerte liegen innerhalb eines definierten normalen historischen Bereichs.
+* Keine deutliche Abweichung von Median, Trefferquote und Perzentilen.
+* Kein starker Trend.
+
+## Langintervallphase
+
+Mögliche Kriterien:
+
+* Fenster-Trefferquote liegt unter der globalen Trefferquote.
+* Median oder getrimmter Mittelwert der Nichttreffer-Serien liegen über den globalen Werten.
+* Längere Serien treten innerhalb des Fensters häufiger auf.
+
+## Übergangsphase
+
+Mögliche Kriterien:
+
+* Die letzten Fenster zeigen einen deutlichen Trend.
+* Die aktuelle Klassifikation unterscheidet sich von mehreren vorherigen Fenstern.
+* Trefferquote und Serienkennzahlen verändern sich in entgegengesetzte oder deutlich neue Richtungen.
+* Noch liegt keine stabile neue Phase vor.
+
+## Unzureichende Daten
+
+Verwenden, wenn:
+
+* das Fenster kleiner als die konfigurierte Mindestgröße ist
+* zu wenige vollständige Nichttreffer-Serien vorhanden sind
+* Median oder Vergleichswerte nicht sinnvoll berechnet werden können
+
+---
+
+# 11. Klassifikation nicht über eine einzelne Kennzahl
+
+Die Phase darf nicht ausschließlich durch den Mittelwert bestimmt werden.
+
+Nutze mindestens:
+
+* Trefferquote
+* Median der Nichttreffer-Serien
+* getrimmten Mittelwert
+* globales 25. und 75. Perzentil
+* zeitliche Entwicklung über mehrere Fenster
+
+Eine mögliche erste Bewertungslogik kann mit Punkten arbeiten.
+
+Beispiel:
+
+```text
+Trefferquote deutlich über globalem Wert:
+-1 Langintervallpunkt
+
+Median deutlich unter globalem Wert:
+-1 Langintervallpunkt
+
+Getrimmter Mittelwert deutlich unter globalem Wert:
+-1 Langintervallpunkt
+
+Trefferquote deutlich unter globalem Wert:
++1 Langintervallpunkt
+
+Median deutlich über globalem Wert:
++1 Langintervallpunkt
+
+Getrimmter Mittelwert deutlich über globalem Wert:
++1 Langintervallpunkt
+```
+
+Interpretation:
+
+```text
+Score <= -2:
+Kurzintervallphase
+
+Score zwischen -1 und +1:
+Normalphase
+
+Score >= +2:
+Langintervallphase
+```
+
+Falls gleichzeitig ein deutlicher Trend gegenüber vorherigen Fenstern besteht:
+
+```text
+Übergangsphase
+```
+
+Diese Schwellen müssen konfigurierbar sein und in Tests nachvollziehbar geprüft werden.
+
+Bevor diese Logik implementiert wird, prüfe, ob im Projekt bereits ein Scoring-, Ranking- oder Klassifikationsmechanismus existiert, der wiederverwendet werden kann.
+
+---
+
+# 12. Aktuelle Phasenbewertung
+
+Das letzte vollständige Fenster jeder Fenstergröße gilt als aktuelles Fenster.
+
+Beispiel:
+
+```text
+25er-Fenster:
+kurzfristige Phase
+
+50er-Fenster:
+mittelfristige Phase
+
+100er-Fenster:
+längerfristige Phase
+```
+
+Erwartete Struktur:
+
+```ts
+interface CurrentNumberPhaseAssessment {
+  readonly shortTerm: PhaseWindowAssessment | null;
+  readonly mediumTerm: PhaseWindowAssessment | null;
+  readonly longTerm: PhaseWindowAssessment | null;
+  readonly combinedAssessment: CombinedPhaseAssessment;
+}
+```
+
+```ts
+interface PhaseWindowAssessment {
+  readonly windowSize: number;
+  readonly phaseType: NumberPhaseType;
+  readonly confidence: number;
+  readonly comparisonToGlobal: WindowGlobalComparison;
+  readonly hitRateTrend: WindowMetricTrend;
+  readonly medianMissStreakTrend: WindowMetricTrend;
+  readonly explanationKeys: readonly string[];
+}
+```
+
+`confidence` darf keine mathematische Vorhersagewahrscheinlichkeit darstellen.
+
+Es beschreibt lediglich, wie eindeutig die vorhandenen historischen Kennzahlen zur Klassifikation passen.
+
+Benutze alternativ einen weniger missverständlichen Namen:
+
+```ts
+classificationStrength
+```
+
+Bevorzugt:
+
+```ts
+readonly classificationStrength: number;
+```
+
+Wertebereich:
+
+```text
+0 bis 1
+```
+
+---
+
+# 13. Kombinierte Einordnung mehrerer Fenstergrößen
+
+Die Fenstergrößen dürfen unterschiedliche Ergebnisse liefern.
+
+Beispiel:
+
+```text
+25 Ziehungen:
+Langintervallphase
+
+50 Ziehungen:
+Übergangsphase
+
+100 Ziehungen:
+Normalphase
+```
+
+Das ist kein Fehler, sondern eine wichtige Information.
+
+Die kombinierte Bewertung soll diese Unterschiede nicht zu einem einzigen Durchschnitt glätten.
+
+Stattdessen soll sie beschreibend zusammenfassen:
+
+```ts
+type CombinedPhasePattern =
+  | "aligned-short-interval"
+  | "aligned-normal"
+  | "aligned-long-interval"
+  | "short-term-deviation"
+  | "medium-term-transition"
+  | "mixed-time-horizons"
+  | "insufficient-data";
+```
+
+Beispiele:
+
+```text
+Alle Fenster zeigen Langintervallphase:
+aligned-long-interval
+
+Nur das kurze Fenster zeigt Langintervallphase:
+short-term-deviation
+
+Kurzes Fenster verändert sich, mittleres Fenster ist Übergang, langes Fenster normal:
+medium-term-transition
+
+Alle Horizonte unterscheiden sich deutlich:
+mixed-time-horizons
+```
+
+---
+
+# 14. Benutzeroberfläche
+
+## Übersichtsansicht
+
+Zeige für jede Zahl eine kompakte Zeile oder Karte.
+
+Empfohlene Inhalte:
+
+```text
+Zahl
+Gesamttreffer
+Aktuelle Nichttreffer-Serie
+Globale typische Nichttreffer-Dauer
+Phase der letzten 25 Ziehungen
+Phase der letzten 50 Ziehungen
+Phase der letzten 100 Ziehungen
+```
+
+Beispiel:
+
+```text
+Zahl 3
+
+Gesamttreffer: 103
+Aktuell nicht gezogen: 9
+Globaler Median: 7
+
+25 Ziehungen: Langintervallphase
+50 Ziehungen: Übergangsphase
+100 Ziehungen: Normalphase
+```
+
+## Detailansicht einer Zahl
+
+Zeige:
+
+* gesamte Trefferzahl
+* globale Trefferquote
+* aktuelle Nichttreffer-Serie
+* globale Nichttreffer-Verteilung
+* globale robuste Kennzahlen
+* Diagramm der Trefferquote über rollierende Fenster
+* Diagramm des Medians der Nichttreffer-Serien
+* Diagramm des getrimmten Mittelwerts
+* Diagramm der maximalen Nichttreffer-Serie
+* farblich oder textlich markierte Phasen
+* Vergleich der aktuellen Fenstergrößen
+* vollständige tabellarische Fensterdaten
+
+## Diagramm-Achsen
+
+X-Achse:
+
+```text
+Zeitpunkt beziehungsweise Enddatum des Fensters
+```
+
+Y-Achse je nach Diagramm:
+
+```text
+Trefferquote
+Median der Nichttreffer-Serie
+Getrimmter Mittelwert
+Maximale Nichttreffer-Serie
+```
+
+Mehrere Fenstergrößen dürfen gemeinsam angezeigt werden, müssen aber eindeutig unterscheidbar sein.
+
+---
+
+# 15. Nutzerkonfiguration
+
+Der Nutzer soll später auswählen können:
+
+* analysierte Zahl oder mehrere Zahlen
+* Fenstergrößen
+* Schrittweite
+* angezeigte Kennzahlen
+* Einbeziehung oder Ausschluss unvollständiger Randserien
+* Zeitraum beziehungsweise Datenausschnitt
+* Diagramm oder Tabelle
+* Vergleich mit Gesamthistorie
+* Vergleich mit vorherigen Fenstern
+
+Die Berechnungslogik darf deshalb nicht direkt an feste UI-Komponenten gekoppelt sein.
+
+---
+
+# 16. Fachliche Hinweise in der Oberfläche
+
+Zeige in der Detailansicht einen klaren Hinweis:
+
+```text
+Die dargestellten Phasen beschreiben ausschließlich historische Veränderungen innerhalb der ausgewählten Ziehungen. Sie stellen keine Vorhersage dar und verändern nicht die mathematische Wahrscheinlichkeit einer Zahl in der nächsten Ziehung.
+```
+
+Vermeide Formulierungen wie:
+
+```text
+Die Zahl muss bald kommen.
+Die Zahl wird wahrscheinlicher.
+Die Zahl gleicht sich jetzt aus.
+Sicher überfällig.
+```
+
+Zulässige Formulierungen:
+
+```text
+Historisch ungewöhnlich lange Ausbleibephase.
+Im aktuellen Zeitfenster häufiger gezogen.
+Der kurzfristige Verlauf weicht vom langfristigen Verlauf ab.
+Die jüngeren Fenster zeigen steigende Nichttreffer-Dauern.
+```
+
+---
+
+# 17. Edge Cases
+
+Behandle mindestens folgende Fälle:
+
+1. Weniger Ziehungen als die Fenstergröße.
+2. Genau so viele Ziehungen wie die Fenstergröße.
+3. Zahl wurde in jedem Fenster immer gezogen.
+4. Zahl wurde im gesamten Fenster nie gezogen.
+5. Keine vollständig abgeschlossene Nichttreffer-Serie im Fenster.
+6. Nur eine abgeschlossene Serie.
+7. Serie beginnt vor dem Fenster.
+8. Serie endet nach dem Fenster.
+9. Unscharfe oder fehlende Ziehungsdaten.
+10. Doppelte Zahl innerhalb einer fehlerhaften Ziehung.
+11. Chronologisch unsortierte Eingabe.
+12. Unterschiedliche Fenstergrößen.
+13. Schrittweite größer als 1.
+14. Leerer Datensatz.
+15. Nicht zusammenhängende oder gefilterte Ziehungszeiträume.
+
+---
+
+# 18. Tests
+
+Erstelle Unit-Tests mindestens für:
+
+## Fensterbildung
+
+* korrekte Anzahl der Fenster
+* korrekte Start- und Endindizes
+* Schrittweite 1
+* Schrittweite größer als 1
+* Fenstergröße entspricht Datensatzgröße
+* Fenstergröße größer als Datensatzgröße
+
+## Serienberechnung
+
+* vollständig im Fenster liegende Serie
+* am Anfang abgeschnittene Serie
+* am Ende abgeschnittene Serie
+* an beiden Seiten abgeschnittene Serie
+* Ausschluss unvollständiger Randserien
+* optionale Einbeziehung unvollständiger Randserien
+
+## Kennzahlen
+
+* Trefferzahl
+* Trefferquote
+* Median
+* Mittelwert
+* getrimmter Mittelwert
+* Maximum
+* Perzentile
+* offene Serie am Fensterende
+
+## Vergleiche
+
+* Fenster gegen globale Historie
+* aktuelles gegen vorheriges Fenster
+* steigender Trend
+* fallender Trend
+* stabiler Trend
+* Division durch 0
+
+## Klassifikation
+
+* Kurzintervallphase
+* Normalphase
+* Langintervallphase
+* Übergangsphase
+* unzureichende Daten
+* unterschiedliche Phasen bei 25, 50 und 100 Ziehungen
+* kombinierte Einordnung verschiedener Zeithorizonte
+
+---
+
+# 19. Beispiel für einen deterministischen Testdatensatz
+
+Verwende einen kleinen, verständlichen Datensatz.
+
+Für Zahl 3:
+
+```text
+Ziehung 1: Treffer
+Ziehung 2: Nichttreffer
+Ziehung 3: Treffer
+Ziehung 4: Nichttreffer
+Ziehung 5: Nichttreffer
+Ziehung 6: Treffer
+Ziehung 7: Nichttreffer
+Ziehung 8: Nichttreffer
+Ziehung 9: Nichttreffer
+Ziehung 10: Treffer
+```
+
+Abgeschlossene globale Nichttreffer-Serien:
+
+```text
+1, 2, 3
+```
+
+Bei Fenstergröße 5:
+
+```text
+Fenster 1: Ziehung 1 bis 5
+Fenster 2: Ziehung 2 bis 6
+Fenster 3: Ziehung 3 bis 7
+Fenster 4: Ziehung 4 bis 8
+Fenster 5: Ziehung 5 bis 9
+Fenster 6: Ziehung 6 bis 10
+```
+
+Prüfe für jedes Fenster:
+
+* Trefferzahl
+* Nichttrefferzahl
+* vollständige Serien
+* unvollständige Randserien
+* Median, soweit berechenbar
+* Serie am Fensterende
+
+---
+
+# 20. Architektur
+
+Implementiere die Funktion zunächst unabhängig von der Benutzeroberfläche.
+
+Empfohlene fachliche Komponenten:
+
+```text
+RollingWindowBuilder
+NumberWindowAnalyzer
+WindowMissStreakAnalyzer
+WindowStatisticsCalculator
+WindowTrendAnalyzer
+NumberPhaseClassifier
+CombinedPhaseClassifier
+```
+
+Diese Namen sind Vorschläge. Passe sie an die vorhandene Projektarchitektur an.
+
+Anforderungen:
+
+* reine Berechnungsfunktionen bevorzugen
+* unveränderliche Ergebnisobjekte
+* keine UI-Abhängigkeiten im Domain- oder Engine-Code
+* vorhandene Draw- und Number-Typen wiederverwenden
+* bestehende Statistikfunktionen wiederverwenden
+* keine doppelte Median-, Perzentil- oder Trimmed-Mean-Logik
+* keine Änderung fachfremder Funktionen
+* TypeScript-Typen strikt halten
+* keine unnötigen `any`-Typen
+
+---
+
+# 21. Performance
+
+Bei mehr als 800 Ziehungen, 49 Zahlen und mehreren Fenstergrößen darf die Berechnung nicht unnötig mehrfach dieselben Grunddaten durchlaufen.
+
+Prüfe Optimierungen wie:
+
+* binäre Trefferfolge pro Zahl vorberechnen
+* Präfixsummen für Trefferzahlen
+* wiederverwendbare Fensterindizes
+* inkrementelle Aktualisierung von Trefferzahlen beim Verschieben des Fensters
+* Caching unveränderter globaler Statistiken
+
+Vermeide jedoch vorzeitige Optimierung zulasten der fachlichen Korrektheit.
+
+Erstelle einen Benchmark für mindestens:
+
+```text
+1.000 Ziehungen
+49 Zahlen
+Fenstergrößen 25, 50 und 100
+Schrittweite 1
+```
+
+Dokumentiere die Laufzeit.
+
+---
+
+# 22. Vorgehen
+
+1. Analysiere zuerst die vorhandenen Draw-, Dataset-, Metric- und Statistiktypen.
+2. Identifiziere wiederverwendbare Berechnungsfunktionen.
+3. Definiere die neuen Domain-Typen.
+4. Implementiere und teste die Fensterbildung.
+5. Implementiere und teste die Kennzahlen pro Zahl und Fenster.
+6. Implementiere den Vergleich mit der Gesamthistorie.
+7. Implementiere die Trendanalyse.
+8. Implementiere die deskriptive Phasenklassifikation.
+9. Ergänze die kombinierte Bewertung mehrerer Fenstergrößen.
+10. Integriere danach die Benutzeroberfläche.
+11. Ergänze Hinweise, dass keine Vorhersage erfolgt.
+12. Führe Tests, Typecheck und bestehenden Build vollständig aus.
+
+Nach Abschluss berichte kurz:
+
+* welche Dateien erstellt wurden
+* welche Dateien geändert wurden
+* welche bestehenden Komponenten wiederverwendet wurden
+* wie Fenstergrenzen behandelt werden
+* welche Kennzahlen berechnet werden
+* wie die Phasenklassifikation funktioniert
+* welche Tests ergänzt wurden
+* welche Annahmen getroffen wurden
+
+---
+
+# 23. Zentrale Abnahmekriterien
+
+Die Aufgabe ist abgeschlossen, wenn:
+
+* jede Zahl separat analysiert wird
+* mehrere konfigurierbare rollierende Fenster unterstützt werden
+* alle Fenster chronologisch korrekt erzeugt werden
+* Trefferquote und Nichttreffer-Serien pro Fenster korrekt berechnet werden
+* abgeschnittene Randserien eindeutig gekennzeichnet sind
+* aktuelle Fenster mit der Gesamthistorie verglichen werden
+* zeitliche Trends sichtbar sind
+* Kurzintervall-, Normal-, Langintervall- und Übergangsphasen deskriptiv klassifiziert werden
+* unterschiedliche Ergebnisse verschiedener Fenstergrößen erhalten bleiben
+* keine Vorhersage oder Gewinnwahrscheinlichkeit ausgegeben wird
+* Unit-Tests, Typecheck und bestehender Build erfolgreich durchlaufen

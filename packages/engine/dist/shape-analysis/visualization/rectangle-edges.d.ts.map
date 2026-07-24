@@ -1,0 +1,1 @@
+{"version":3,"file":"rectangle-edges.d.ts","sourceRoot":"","sources":["../../../src/shape-analysis/visualization/rectangle-edges.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,uBAAuB,CAAC;AAM/D;;GAEG;AACH,wBAAgB,2BAA2B,CACzC,QAAQ,EAAE,iBAAiB,GAC1B,SAAS,MAAM,EAAE,CAwCnB;AAID,wBAAgB,0BAA0B,CACxC,WAAW,EAAE,MAAM,EACnB,QAAQ,EAAE,iBAAiB,GAC1B,SAAS,MAAM,EAAE,CAUnB"}

@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "experimentId": "cli-orchestration-example",
+    "createdAt": "2026-07-17T13:00:00.000Z",
+    "engineVersion": "0.5.0"
+  },
+  "generatedAt": "2026-07-17T13:05:00.000Z",
+  "candidates": [
+    {
+      "resultId": "candidate-a",
+      "experimentId": "candidate-a-run",
+      "placements": [
+        {
+          "anchorValue": 1,
+          "indices": [1, 2, 3, 4, 5]
+        }
+      ],
+      "draws": [
+        {
+          "drawDate": "2026-01-01",
+          "indices": [1, 20, 21, 22, 23]
+        },
+        {
+          "drawDate": "2026-01-02",
+          "indices": [1, 2, 20, 21, 22]
+        }
+      ]
+    },
+    {
+      "resultId": "candidate-b",
+      "experimentId": "candidate-b-run",
+      "placements": [
+        {
+          "anchorValue": 2,
+          "indices": [10, 11, 12, 13, 14]
+        }
+      ],
+      "draws": [
+        {
+          "drawDate": "2026-01-01",
+          "indices": [10, 11, 12, 20, 21]
+        },
+        {
+          "drawDate": "2026-01-02",
+          "indices": [10, 11, 12, 13, 20]
+        }
+      ]
+    }
+  ],
+  "configuration": {
+    "layout": {
+      "type": "sample-layout"
+    },
+    "placementGenerator": {
+      "type": "sample-generator"
+    },
+    "metrics": [
+      {
+        "id": "average-hits"
+      },
+      {
+        "id": "maximum-hits"
+      }
+    ],
+    "ranking": {
+      "criteria": [
+        {
+          "metricId": "average-hits",
+          "weight": 0.7,
+          "direction": "descending"
+        },
+        {
+          "metricId": "maximum-hits",
+          "weight": 0.3,
+          "direction": "descending"
+        }
+      ]
+    }
+  }
+}

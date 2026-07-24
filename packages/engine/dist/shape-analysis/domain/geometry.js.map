@@ -1,0 +1,1 @@
+{"version":3,"file":"geometry.js","sourceRoot":"","sources":["../../../src/shape-analysis/domain/geometry.ts"],"names":[],"mappings":"AAuCA,MAAM,UAAU,mBAAmB,CACjC,QAAuB;IAEvB,OAAO,CACL,WAAW,IAAI,QAAQ;QACvB,cAAc,IAAI,QAAQ;QAC1B,OAAO,IAAI,QAAQ;QACnB,QAAQ,IAAI,QAAQ,CACrB,CAAC;AACJ,CAAC"}

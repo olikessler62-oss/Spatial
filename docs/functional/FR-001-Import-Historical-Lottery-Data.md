@@ -198,6 +198,26 @@ The system shall support automatic imports via APIs.
 
 
 
+\## FR-001.11
+
+
+
+The system shall resolve the applicable `LotteryRuleSet` for each draw from its draw date.
+
+
+
+Validation and persistence must use the rule set whose validity period covers that date.
+
+
+
+A DatasetVersion may contain draws from multiple historical rule eras of the same Lottery.
+
+
+
+\---
+
+
+
 \# Acceptance Criteria
 
 
@@ -219,6 +239,10 @@ The system shall support automatic imports via APIs.
 
 
 ✓ Dataset version is updated.
+
+
+
+✓ Draws spanning a rule change (for example EuroJackpot 2/10 → 2/12) receive the correct `rule_set_id`.
 
 
 

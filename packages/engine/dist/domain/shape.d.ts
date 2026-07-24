@@ -12,10 +12,6 @@ export interface ResolvedShapePosition {
     readonly relative: RelativePosition;
     readonly absolute: CartesianPosition;
 }
-export interface ShapePlacement {
-    readonly anchorValue: number;
-    readonly positions: readonly ResolvedShapePosition[];
-}
 export interface ShapeResolver {
     resolve(shape: ShapeDefinition, layout: Layout, anchorValue: number): ShapePlacement;
 }

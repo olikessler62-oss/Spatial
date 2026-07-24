@@ -1,31 +1,88 @@
 import type { Layout, LayoutDefinition, ResolvedLayoutValue } from "../domain/layout.js";
 import { LayoutError } from "./layout-error.js";
+import {
+  buildValueToIndexMap,
+  validateValueMapping,
+} from "./value-mapping.js";
 
 export abstract class AbstractLayout implements Layout {
+  private readonly valueToIndex: ReadonlyMap<number, number> | null;
+
   public constructor(public readonly definition: LayoutDefinition) {
     if (definition.minimumValue > definition.maximumValue) {
-      throw new LayoutError("minimumValue must not be greater than maximumValue.", "INVALID_VALUE_RANGE");
+      throw new LayoutError(
+        "minimumValue must not be greater than maximumValue.",
+        "INVALID_VALUE_RANGE",
+      );
+    }
+
+    if (definition.valueMapping !== undefined) {
+      validateValueMapping(
+        definition.valueMapping,
+        definition.minimumValue,
+        definition.maximumValue,
+      );
+      this.valueToIndex = buildValueToIndexMap(definition.valueMapping);
+    } else {
+      this.valueToIndex = null;
     }
   }
 
   public resolve(value: number): ResolvedLayoutValue {
     if (!Number.isInteger(value)) {
-      throw new LayoutError(`Layout values must be integers. Received ${value}.`, "NON_INTEGER_VALUE");
+      throw new LayoutError(
+        `Layout values must be integers. Received ${value}.`,
+        "NON_INTEGER_VALUE",
+      );
     }
-    if (value < this.definition.minimumValue || value > this.definition.maximumValue) {
-      throw new LayoutError(`Value ${value} is outside ${this.definition.minimumValue}-${this.definition.maximumValue}.`, "VALUE_OUT_OF_RANGE");
+
+    if (
+      value < this.definition.minimumValue
+      || value > this.definition.maximumValue
+    ) {
+      throw new LayoutError(
+        `Value ${value} is outside ${this.definition.minimumValue}-${this.definition.maximumValue}.`,
+        "VALUE_OUT_OF_RANGE",
+      );
     }
-    const index = value - this.definition.minimumValue;
+
+    const index = this.valueToIndex
+      ? this.valueToIndex.get(value)
+      : value - this.definition.minimumValue;
+
+    if (index === undefined) {
+      throw new LayoutError(
+        `Value ${value} is missing from valueMapping.`,
+        "INVALID_VALUE_MAPPING",
+      );
+    }
+
     return { value, index, position: this.resolveIndex(index) };
   }
 
   public resolveAll(): readonly ResolvedLayoutValue[] {
+    if (this.definition.valueMapping) {
+      return this.definition.valueMapping.map((value, index) => ({
+        value,
+        index,
+        position: this.resolveIndex(index),
+      }));
+    }
+
     const result: ResolvedLayoutValue[] = [];
-    for (let value = this.definition.minimumValue; value <= this.definition.maximumValue; value += 1) {
+
+    for (
+      let value = this.definition.minimumValue;
+      value <= this.definition.maximumValue;
+      value += 1
+    ) {
       result.push(this.resolve(value));
     }
+
     return result;
   }
 
-  protected abstract resolveIndex(zeroBasedIndex: number): ResolvedLayoutValue["position"];
+  protected abstract resolveIndex(
+    zeroBasedIndex: number,
+  ): ResolvedLayoutValue["position"];
 }

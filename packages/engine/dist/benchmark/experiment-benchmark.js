@@ -1,4 +1,3 @@
-import { performance } from "node:perf_hooks";
 import { ExperimentRunner } from "../experiment/experiment-runner.js";
 export class ExperimentBenchmark {
     runner;

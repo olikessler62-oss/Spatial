@@ -14,7 +14,11 @@
     "test:watch": "vitest",
     "import:csv": "tsx src/cli/import-csv.ts",
     "analyze:experiment": "tsx src/cli/analyze-experiment.ts",
+    "experiment1": "tsx src/cli/run-experiment1.ts",
+    "experiment1:gaps": "tsx src/cli/run-experiment1-gaps.ts",
+    "corner5x5": "tsx src/cli/run-corner-5x5.ts",
     "benchmark": "tsx src/benchmark/run-benchmarks.ts",
+    "benchmark:rolling-phase": "tsx src/benchmark/rolling-phase-benchmark.ts",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
